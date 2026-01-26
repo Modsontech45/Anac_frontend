@@ -8,7 +8,14 @@
       }
     ],
     "routes": [
-      { "src": "/(.*)", "dest": "/index.html" }
+      {
+        "src": "/api/(.*)",
+        "dest": "https://anac-backend.onrender.com/api/$1"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/index.html"
+      }
     ]
   }
   
