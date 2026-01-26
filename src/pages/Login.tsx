@@ -145,7 +145,7 @@ const Login = () => {
           </div>
 
           {/* Demo Credentials */}
-          <div className="mt-4 p-4 bg-gray-50 rounded-windows border border-windows-border">
+          {/* <div className="mt-4 p-4 bg-gray-50 rounded-windows border border-windows-border">
             <p className="text-sm text-windows-textSecondary mb-2 font-medium">
               Identifiants de demo:
             </p>
@@ -160,7 +160,7 @@ const Login = () => {
                 <span className="font-medium">Mot de passe:</span> Admin@123
               </p>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Language Toggle */}
