@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { UserPlus, Eye, EyeOff, ArrowLeft, Check } from 'lucide-react';
+import { UserPlus, Eye, EyeOff, ArrowLeft, Check, Mail } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { authService } from '@/services';
@@ -100,9 +100,19 @@ const Signup = () => {
     return (
       <div className="min-h-screen bg-windows-background flex items-center justify-center p-4">
         <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <img
+              src="/Logo.png"
+              alt="ANAC"
+              className="w-16 h-16 object-contain mx-auto mb-4"
+            />
+            <h1 className="text-2xl font-semibold text-windows-text">
+              {t('common.appName')}
+            </h1>
+          </div>
           <div className="bg-windows-surface rounded-windows-lg shadow-windows border border-windows-border p-6 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-green-600" />
+              <Mail className="w-8 h-8 text-green-600" />
             </div>
             <h2 className="text-xl font-semibold text-windows-text mb-2">
               {t('auth.signupSuccess')}

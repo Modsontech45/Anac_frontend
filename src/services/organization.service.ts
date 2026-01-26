@@ -4,6 +4,7 @@ export interface Organization {
   id: string;
   name: string;
   apiKey: string;
+  logoUrl: string | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -11,6 +12,11 @@ export interface Organization {
 
 export interface ApiKeyResponse {
   apiKey: string;
+}
+
+export interface LogoUploadResponse {
+  logoUrl: string;
+  organization: Organization;
 }
 
 const organizationService = {
@@ -35,6 +41,29 @@ const organizationService = {
   // Update organization name
   async updateName(name: string): Promise<Organization> {
     const response = await api.patch<{ success: boolean; data: Organization }>('/organization/name', { name });
+    return response.data.data;
+  },
+
+  // Upload organization logo
+  async uploadLogo(file: File): Promise<LogoUploadResponse> {
+    const formData = new FormData();
+    formData.append('logo', file);
+
+    const response = await api.post<{ success: boolean; data: LogoUploadResponse; message: string }>(
+      '/organization/logo',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data.data;
+  },
+
+  // Delete organization logo
+  async deleteLogo(): Promise<Organization> {
+    const response = await api.delete<{ success: boolean; data: Organization }>('/organization/logo');
     return response.data.data;
   },
 };

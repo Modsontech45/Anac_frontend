@@ -3,6 +3,7 @@ import { Menu, Bell, User, LogOut, Globe } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
+import organizationService, { type Organization } from '@/services/organization.service';
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
@@ -10,6 +11,7 @@ const Navbar = () => {
   const { toggleSidebar } = useUIStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [organization, setOrganization] = useState<Organization | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const langMenuRef = useRef<HTMLDivElement>(null);
 
@@ -26,6 +28,27 @@ const Navbar = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Fetch organization data for logo
+  useEffect(() => {
+    const fetchOrganization = async () => {
+      try {
+        const data = await organizationService.getMyOrganization();
+        setOrganization(data);
+      } catch (error) {
+        console.error('Failed to fetch organization:', error);
+      }
+    };
+    fetchOrganization();
+  }, []);
+
+  // Get logo URL (Cloudinary returns full URL)
+  const getLogoUrl = () => {
+    if (organization?.logoUrl) {
+      return organization.logoUrl; // Full Cloudinary URL
+    }
+    return '/Logo.png'; // Fallback to default logo
+  };
 
   const handleLanguageChange = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -50,12 +73,12 @@ const Navbar = () => {
         </button>
         <div className="flex items-center gap-2">
           <img
-            src="/Logo.png"
-            alt="ANAC"
+            src={getLogoUrl()}
+            alt={organization?.name || 'ANAC'}
             className="w-8 h-8 object-contain"
           />
           <span className="font-semibold text-windows-text hidden sm:block">
-            ANAC
+            {organization?.name || 'ANAC'}
           </span>
         </div>
       </div>

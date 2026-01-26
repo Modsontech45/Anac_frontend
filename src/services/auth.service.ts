@@ -67,6 +67,21 @@ export const authService = {
     );
     return { message: response.data.message || 'Password reset successfully.' };
   },
+
+  verifyEmail: async (token: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.get<{ success: boolean; message: string }>(
+      `/auth/verify-email/${token}`
+    );
+    return response.data;
+  },
+
+  resendVerification: async (email: string): Promise<{ message: string }> => {
+    const response = await api.post<ApiResponse<{ message: string }>>(
+      '/auth/resend-verification',
+      { email }
+    );
+    return { message: response.data.message || 'Verification email sent.' };
+  },
 };
 
 export default authService;

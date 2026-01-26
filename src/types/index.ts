@@ -9,8 +9,11 @@ export interface User {
   lastName: string;
   role: UserRole;
   departmentId: string | null;
+  organizationId: string | null;
   rfidTag: string | null;
   isActive: boolean;
+  emailVerified: boolean;
+  totalHoursWorked?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -91,6 +94,17 @@ export interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+}
+
+// Organization interface
+export interface Organization {
+  id: string;
+  name: string;
+  apiKey: string;
+  logoUrl: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // API Response interfaces

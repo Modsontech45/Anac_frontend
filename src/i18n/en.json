@@ -58,7 +58,7 @@
     "alreadyHaveAccount": "Already have an account? Sign in",
     "dontHaveAccount": "Don't have an account? Sign up",
     "signupSuccess": "Account Created!",
-    "signupSuccessMessage": "Your account has been created successfully. Please login with your credentials.",
+    "signupSuccessMessage": "Your account has been created successfully. Please check your email to verify your account before logging in.",
     "goToLogin": "Go to Login",
     "passwordMismatch": "Passwords do not match",
     "passwordReq8Chars": "At least 8 characters",
@@ -83,7 +83,17 @@
     "invalidTokenMessage": "This password reset link is invalid or has expired. Please request a new one.",
     "requestNewLink": "Request New Link",
     "passwordResetSuccess": "Password Reset!",
-    "passwordResetSuccessMessage": "Your password has been reset successfully. Please login with your new password."
+    "passwordResetSuccessMessage": "Your password has been reset successfully. Please login with your new password.",
+    "verifyingEmail": "Verifying your email...",
+    "emailVerified": "Email Verified!",
+    "emailVerifiedMessage": "Your email has been verified successfully. You can now log in to your account.",
+    "verificationFailed": "Verification Failed",
+    "verificationFailedMessage": "This verification link is invalid or has expired.",
+    "resendVerificationPrompt": "Need a new verification link?",
+    "emailPlaceholder": "Enter your email address",
+    "resendVerification": "Resend Verification Email",
+    "verificationEmailSent": "Email Sent!",
+    "verificationEmailSentMessage": "If an account exists with this email and is not yet verified, a new verification link has been sent."
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -141,7 +151,8 @@
     "userCreated": "User created successfully",
     "userUpdated": "User updated successfully",
     "userDeleted": "User deleted successfully",
-    "noDepartment": "No department"
+    "noDepartment": "No department",
+    "totalHours": "Total Hours"
   },
   "departments": {
     "title": "Department Management",
@@ -273,6 +284,20 @@
     "hour": "Hour",
     "minute": "Minute",
     "lateArrivalSaved": "Late arrival settings saved",
-    "lateArrivalError": "Failed to save late arrival settings"
+    "lateArrivalError": "Failed to save late arrival settings",
+    "organizationLogo": "Organization Logo",
+    "organizationLogoDesc": "Upload your company logo to personalize the application",
+    "uploadLogo": "Upload Logo",
+    "selectLogo": "Select Logo",
+    "changeLogo": "Change Logo",
+    "deleteLogo": "Delete Logo",
+    "currentLogo": "Current Logo",
+    "newLogo": "New Logo",
+    "logoRequirements": "PNG, JPG, JPEG, or GIF. Max 2MB.",
+    "logoInvalidType": "Invalid file type. Only PNG, JPG, JPEG, and GIF are allowed.",
+    "logoTooLarge": "File is too large. Maximum size is 2MB.",
+    "logoUploadError": "Failed to upload logo. Please try again.",
+    "logoDeleteError": "Failed to delete logo. Please try again.",
+    "logoSaved": "Logo saved successfully"
   }
 }

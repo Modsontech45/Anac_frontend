@@ -6,6 +6,7 @@ import {
   Signup,
   ForgotPassword,
   ResetPassword,
+  VerifyEmail,
   Dashboard,
   Users,
   Departments,
@@ -63,6 +64,10 @@ export const routes = [
       {
         path: '/reset-password/:token',
         element: <ResetPassword />,
+      },
+      {
+        path: '/verify-email/:token',
+        element: <VerifyEmail />,
       },
     ],
   },

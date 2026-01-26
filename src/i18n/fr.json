@@ -58,7 +58,7 @@
     "alreadyHaveAccount": "Deja inscrit ? Se connecter",
     "dontHaveAccount": "Pas de compte ? S'inscrire",
     "signupSuccess": "Compte cree !",
-    "signupSuccessMessage": "Votre compte a ete cree avec succes. Veuillez vous connecter avec vos identifiants.",
+    "signupSuccessMessage": "Votre compte a ete cree avec succes. Veuillez verifier votre e-mail pour activer votre compte.",
     "goToLogin": "Aller a la connexion",
     "passwordMismatch": "Les mots de passe ne correspondent pas",
     "passwordReq8Chars": "Au moins 8 caracteres",
@@ -83,7 +83,17 @@
     "invalidTokenMessage": "Ce lien de reinitialisation est invalide ou a expire. Veuillez en demander un nouveau.",
     "requestNewLink": "Demander un nouveau lien",
     "passwordResetSuccess": "Mot de passe reinitialise !",
-    "passwordResetSuccessMessage": "Votre mot de passe a ete reinitialise avec succes. Veuillez vous connecter avec votre nouveau mot de passe."
+    "passwordResetSuccessMessage": "Votre mot de passe a ete reinitialise avec succes. Veuillez vous connecter avec votre nouveau mot de passe.",
+    "verifyingEmail": "Verification de votre e-mail...",
+    "emailVerified": "E-mail verifie !",
+    "emailVerifiedMessage": "Votre e-mail a ete verifie avec succes. Vous pouvez maintenant vous connecter.",
+    "verificationFailed": "Echec de la verification",
+    "verificationFailedMessage": "Ce lien de verification est invalide ou a expire.",
+    "resendVerificationPrompt": "Besoin d'un nouveau lien de verification ?",
+    "emailPlaceholder": "Entrez votre adresse e-mail",
+    "resendVerification": "Renvoyer l'e-mail de verification",
+    "verificationEmailSent": "E-mail envoye !",
+    "verificationEmailSentMessage": "Si un compte existe avec cet e-mail et n'est pas encore verifie, un nouveau lien de verification a ete envoye."
   },
   "nav": {
     "dashboard": "Tableau de bord",
@@ -141,7 +151,8 @@
     "userCreated": "Utilisateur créé avec succès",
     "userUpdated": "Utilisateur mis à jour avec succès",
     "userDeleted": "Utilisateur supprimé avec succès",
-    "noDepartment": "Aucun département"
+    "noDepartment": "Aucun département",
+    "totalHours": "Heures totales"
   },
   "departments": {
     "title": "Gestion des Départements",
@@ -273,6 +284,20 @@
     "hour": "Heure",
     "minute": "Minute",
     "lateArrivalSaved": "Paramètres de retard enregistrés",
-    "lateArrivalError": "Échec de l'enregistrement des paramètres"
+    "lateArrivalError": "Échec de l'enregistrement des paramètres",
+    "organizationLogo": "Logo de l'organisation",
+    "organizationLogoDesc": "Téléchargez votre logo d'entreprise pour personnaliser l'application",
+    "uploadLogo": "Télécharger le logo",
+    "selectLogo": "Sélectionner un logo",
+    "changeLogo": "Changer le logo",
+    "deleteLogo": "Supprimer le logo",
+    "currentLogo": "Logo actuel",
+    "newLogo": "Nouveau logo",
+    "logoRequirements": "PNG, JPG, JPEG ou GIF. Max 2 Mo.",
+    "logoInvalidType": "Type de fichier invalide. Seuls PNG, JPG, JPEG et GIF sont autorisés.",
+    "logoTooLarge": "Le fichier est trop volumineux. La taille maximale est de 2 Mo.",
+    "logoUploadError": "Échec du téléchargement du logo. Veuillez réessayer.",
+    "logoDeleteError": "Échec de la suppression du logo. Veuillez réessayer.",
+    "logoSaved": "Logo enregistré avec succès"
   }
 }

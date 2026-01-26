@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, Pencil, Trash2, Search, CreditCard, Loader2, Wifi, WifiOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, CreditCard, Loader2, Wifi, WifiOff, Clock } from 'lucide-react';
 import { useRfidScanner } from '@/hooks';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
@@ -192,6 +192,16 @@ const Users = () => {
       key: 'rfidTag',
       header: t('users.rfidTag'),
       render: (user) => user.rfidTag || '-',
+    },
+    {
+      key: 'totalHoursWorked',
+      header: t('users.totalHours'),
+      render: (user) => (
+        <div className="flex items-center gap-1">
+          <Clock className="w-4 h-4 text-windows-textSecondary" />
+          <span>{user.totalHoursWorked?.toFixed(1) || '0.0'} h</span>
+        </div>
+      ),
     },
     {
       key: 'isActive',
