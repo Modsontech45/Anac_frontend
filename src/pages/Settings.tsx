@@ -246,9 +246,9 @@ const Settings = () => {
   };
 
   // Get logo URL (use relative path - Vite proxy handles it in dev)
-  const getFullLogoUrl = (logoUrl: string | null) => {
-    if (!logoUrl) return null;
-    return logoUrl; // e.g., /uploads/logos/xxx.png
+  const getFullLogoUrl = (logoUrl: string | null | undefined): string | undefined => {
+    if (!logoUrl) return undefined;
+    return logoUrl; // Full Cloudinary URL or /uploads/logos/xxx.png
   };
 
   if (isLoading) {
