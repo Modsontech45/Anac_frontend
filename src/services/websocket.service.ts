@@ -30,11 +30,26 @@ class WebSocketService {
   private connectionResolve: (() => void) | null = null;
 
   constructor(config: WebSocketServiceConfig = {}) {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = import.meta.env.VITE_WS_URL || `${protocol}//${window.location.hostname}:3000`;
-    this.url = config.url || `${host}/ws`;
+    // Derive WebSocket URL from API URL or use explicit WS URL
+    if (import.meta.env.VITE_WS_URL) {
+      this.url = config.url || `${import.meta.env.VITE_WS_URL}/ws`;
+    } else if (import.meta.env.VITE_API_URL) {
+      // Convert API URL to WebSocket URL
+      // e.g., https://anac-backend.onrender.com/api -> wss://anac-backend.onrender.com/ws
+      const apiUrl = import.meta.env.VITE_API_URL as string;
+      const wsProtocol = apiUrl.startsWith('https') ? 'wss:' : 'ws:';
+      const urlWithoutProtocol = apiUrl.replace(/^https?:\/\//, '').replace(/\/api$/, '');
+      this.url = config.url || `${wsProtocol}//${urlWithoutProtocol}/ws`;
+    } else {
+      // Local development fallback
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      this.url = config.url || `${protocol}//${window.location.hostname}:3000/ws`;
+    }
+
     this.reconnectInterval = config.reconnectInterval || 3000;
     this.maxReconnectAttempts = config.maxReconnectAttempts || 10;
+
+    console.log('[WS] WebSocket URL configured:', this.url);
   }
 
   connect(): Promise<void> {
