@@ -253,7 +253,10 @@
     "cardAlreadyRegistered": "Carte déjà enregistrée",
     "scanTimeout": "Délai de scan dépassé",
     "scanError": "Erreur de scan",
-    "scanSuccess": "Carte scannée avec succès"
+    "scanSuccess": "Carte scannée avec succès",
+    "selectDevice": "Sélectionner un appareil",
+    "anyDevice": "N'importe quel appareil",
+    "devicesOnline": "appareils en ligne"
   },
   "settings": {
     "title": "Paramètres",

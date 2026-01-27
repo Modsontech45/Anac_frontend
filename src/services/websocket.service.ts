@@ -203,7 +203,7 @@ class WebSocketService {
     });
   }
 
-  requestRfidScan(timeout = 30000): Promise<RfidScanResult> {
+  requestRfidScan(timeout = 30000, deviceUid?: string): Promise<RfidScanResult> {
     return new Promise((resolve, reject) => {
       const timeoutId = setTimeout(() => {
         cleanup();
@@ -243,6 +243,7 @@ class WebSocketService {
 
       this.send({
         type: 'request_rfid_scan',
+        device_uid: deviceUid,
       });
     });
   }

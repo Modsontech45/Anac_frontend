@@ -2,6 +2,7 @@ export { default as api } from './api';
 export { default as authService } from './auth.service';
 export { default as userService } from './user.service';
 export { default as departmentService } from './department.service';
+export { default as departmentRateService } from './departmentRate.service';
 export { default as deviceService } from './device.service';
 export { default as attendanceService } from './attendance.service';
 export { default as payrollService } from './payroll.service';

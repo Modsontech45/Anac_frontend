@@ -20,7 +20,7 @@ import {
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
-import { departmentService, userService, attendanceService } from '@/services';
+import { departmentService, userService, attendanceService, departmentRateService } from '@/services';
 import type { Department, User, AttendanceRecord } from '@/types';
 
 interface DepartmentRate {
@@ -48,18 +48,11 @@ const Payroll = () => {
   const [departmentRates, setDepartmentRates] = useState<DepartmentRate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   });
-
-  // Load saved rates from localStorage
-  useEffect(() => {
-    const savedRates = localStorage.getItem('departmentRates');
-    if (savedRates) {
-      setDepartmentRates(JSON.parse(savedRates));
-    }
-  }, []);
 
   useEffect(() => {
     fetchData();
@@ -68,7 +61,7 @@ const Payroll = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [deptResponse, usersResponse, attendanceResponse] = await Promise.all([
+      const [deptResponse, usersResponse, attendanceResponse, ratesResponse] = await Promise.all([
         departmentService.getAll({ limit: 100 }),
         userService.getAll({ limit: 100 }),
         attendanceService.getAll({
@@ -76,23 +69,21 @@ const Payroll = () => {
           startDate: `${selectedMonth}-01`,
           endDate: `${selectedMonth}-31`,
         }),
+        departmentRateService.getAllRates().catch(() => []),
       ]);
 
       setDepartments(deptResponse.data);
       setUsers(usersResponse.data);
       setAttendance(attendanceResponse.data);
 
-      // Initialize rates for new departments
-      const savedRates = localStorage.getItem('departmentRates');
-      const existingRates: DepartmentRate[] = savedRates ? JSON.parse(savedRates) : [];
-
+      // Map rates from backend to department rates
       const updatedRates = deptResponse.data.map((dept) => {
-        const existing = existingRates.find((r) => r.departmentId === dept.id);
-        return existing || {
+        const existingRate = ratesResponse.find((r) => r.departmentId === dept.id);
+        return {
           departmentId: dept.id,
           departmentName: dept.name,
-          hourlyRate: 0,
-          currency: 'XAF',
+          hourlyRate: existingRate?.hourlyRate || 0,
+          currency: existingRate?.currency || 'XAF',
         };
       });
 
@@ -112,14 +103,23 @@ const Payroll = () => {
     );
   };
 
-  const handleSaveRates = () => {
+  const handleSaveRates = async () => {
     setIsSaving(true);
+    setSaveMessage(null);
     try {
-      localStorage.setItem('departmentRates', JSON.stringify(departmentRates));
-      // Show success message (you could add a toast notification here)
-      setTimeout(() => setIsSaving(false), 500);
+      await departmentRateService.bulkSetRates({
+        rates: departmentRates.map((r) => ({
+          departmentId: r.departmentId,
+          hourlyRate: r.hourlyRate,
+          currency: r.currency,
+        })),
+      });
+      setSaveMessage({ type: 'success', text: 'Taux enregistrés avec succès' });
+      setTimeout(() => setSaveMessage(null), 3000);
     } catch (error) {
       console.error('Failed to save rates:', error);
+      setSaveMessage({ type: 'error', text: 'Erreur lors de l\'enregistrement des taux' });
+    } finally {
       setIsSaving(false);
     }
   };
@@ -382,6 +382,17 @@ const Payroll = () => {
             >
               Enregistrer les taux
             </Button>
+            {saveMessage && (
+              <div
+                className={`mt-3 p-2 rounded-windows text-sm text-center ${
+                  saveMessage.type === 'success'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
+                }`}
+              >
+                {saveMessage.text}
+              </div>
+            )}
           </div>
         </Card>
 

@@ -106,7 +106,7 @@ const Sidebar = () => {
         className={`
           fixed top-14 left-0 bottom-0 w-64 bg-windows-surface border-r border-windows-border
           transform transition-transform duration-300 ease-in-out z-50
-          lg:translate-x-0 lg:static lg:z-auto
+          lg:translate-x-0 lg:sticky lg:top-14 lg:h-[calc(100vh-3.5rem)] lg:z-auto
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
@@ -122,7 +122,7 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="p-2">
+        <nav className="p-2 overflow-y-auto h-[calc(100%-4rem)] lg:h-[calc(100%-3rem)]">
           <ul className="space-y-1">
             {filteredNavItems.map((item) => (
               <li key={item.id}>

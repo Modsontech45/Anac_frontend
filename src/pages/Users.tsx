@@ -46,12 +46,15 @@ const Users = () => {
     resolver: zodResolver(userSchema),
   });
 
+  const [selectedDeviceUid, setSelectedDeviceUid] = useState<string>('');
+
   const {
     startScan,
     cancelScan,
     isScanning,
     error: scanError,
     isDeviceConnected,
+    connectedDevices,
   } = useRfidScanner({
     onScanSuccess: (uid) => {
       setValue('rfidTag', uid);
@@ -360,10 +363,33 @@ const Users = () => {
             error={errors.departmentId?.message}
             {...register('departmentId')}
           />
-          <div className="space-y-1">
+          <div className="space-y-2">
             <label className="block text-sm font-medium text-windows-text">
               {t('users.rfidTag')}
             </label>
+
+            {/* Device Selector */}
+            {connectedDevices.length > 0 && (
+              <div className="mb-2">
+                <label className="block text-xs font-medium text-windows-textSecondary mb-1">
+                  {t('rfid.selectDevice')}
+                </label>
+                <select
+                  value={selectedDeviceUid}
+                  onChange={(e) => setSelectedDeviceUid(e.target.value)}
+                  disabled={isScanning}
+                  className="w-full px-3 py-2 text-sm border border-windows-border rounded-windows bg-windows-surface text-windows-text focus:outline-none focus:ring-2 focus:ring-windows-accent/50"
+                >
+                  <option value="">{t('rfid.anyDevice')}</option>
+                  {connectedDevices.map((deviceUid) => (
+                    <option key={deviceUid} value={deviceUid}>
+                      {deviceUid}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="flex gap-2">
               <div className="flex-1">
                 <Input
@@ -374,7 +400,7 @@ const Users = () => {
               <Button
                 type="button"
                 variant={isScanning ? 'secondary' : 'primary'}
-                onClick={isScanning ? cancelScan : startScan}
+                onClick={() => isScanning ? cancelScan() : startScan(selectedDeviceUid || undefined)}
                 disabled={!isDeviceConnected && !isScanning}
                 className="whitespace-nowrap"
               >
@@ -395,7 +421,9 @@ const Users = () => {
               {isDeviceConnected ? (
                 <>
                   <Wifi className="w-3 h-3 text-green-500" />
-                  <span className="text-green-600">{t('rfid.deviceConnected')}</span>
+                  <span className="text-green-600">
+                    {t('rfid.deviceConnected')} ({connectedDevices.length} {t('rfid.devicesOnline')})
+                  </span>
                 </>
               ) : (
                 <>

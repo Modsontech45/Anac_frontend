@@ -253,7 +253,10 @@
     "cardAlreadyRegistered": "Card already registered",
     "scanTimeout": "Scan timeout",
     "scanError": "Scan error",
-    "scanSuccess": "Card scanned successfully"
+    "scanSuccess": "Card scanned successfully",
+    "selectDevice": "Select Device",
+    "anyDevice": "Any available device",
+    "devicesOnline": "devices online"
   },
   "settings": {
     "title": "Settings",
