@@ -103,7 +103,8 @@
     "attendance": "Attendance",
     "payroll": "Payroll",
     "reports": "Reports",
-    "settings": "Settings"
+    "settings": "Settings",
+    "subscription": "Subscription"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -299,5 +300,58 @@
     "logoUploadError": "Failed to upload logo. Please try again.",
     "logoDeleteError": "Failed to delete logo. Please try again.",
     "logoSaved": "Logo saved successfully"
+  },
+  "subscription": {
+    "title": "Choose Your Plan",
+    "subtitle": "Select the perfect plan for your organization. All plans include a 14-day free trial.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save20": "Save 20%",
+    "perMonth": "month",
+    "billedMonthly": "Billed monthly",
+    "billedYearly": "Billed annually (${{amount}}/year)",
+    "savePerYear": "Save ${{amount}}/year",
+    "mostPopular": "Most Popular",
+    "subscribe": "Subscribe Now",
+    "contactUs": "Contact Us",
+    "contactSales": "Contact Sales",
+    "comingSoon": "Payment integration coming soon! Contact us for subscription setup.",
+    "plans": {
+      "standard": "Standard",
+      "pro": "Pro",
+      "enterprise": "Enterprise",
+      "custom": "Custom"
+    },
+    "userLimits": {
+      "standard": "Up to 20 users",
+      "pro": "21-100 users",
+      "enterprise": "101-250 users",
+      "custom": "250+ users"
+    },
+    "features": {
+      "basicAttendance": "Basic attendance tracking",
+      "rfidSupport": "RFID device support",
+      "basicReports": "Basic reports",
+      "emailSupport": "Email support",
+      "upTo20Users": "Up to 20 employees",
+      "allStandard": "All Standard features",
+      "advancedReports": "Advanced analytics & reports",
+      "payrollIntegration": "Payroll management",
+      "prioritySupport": "Priority support",
+      "upTo100Users": "Up to 100 employees",
+      "allPro": "All Pro features",
+      "customIntegrations": "Custom integrations",
+      "dedicatedManager": "Dedicated account manager",
+      "slaGuarantee": "99.9% SLA guarantee",
+      "upTo250Users": "Up to 250 employees",
+      "allEnterprise": "All Enterprise features",
+      "unlimitedUsers": "Unlimited employees",
+      "customDevelopment": "Custom development",
+      "onPremise": "On-premise deployment option",
+      "dedicatedSupport": "24/7 dedicated support"
+    },
+    "questionsTitle": "Have Questions?",
+    "questionsSubtitle": "Our team is here to help you choose the right plan for your organization.",
+    "securePayments": "Secure payments powered by Stripe"
   }
 }

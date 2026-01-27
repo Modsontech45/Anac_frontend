@@ -8,6 +8,7 @@ import {
   ClipboardList,
   Wallet,
   Settings,
+  CreditCard,
   X,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
@@ -70,6 +71,13 @@ const navItems: NavItem[] = [
     labelKey: 'nav.settings',
     icon: <Settings className="w-5 h-5" />,
     path: '/settings',
+    roles: ['admin'],
+  },
+  {
+    id: 'subscription',
+    labelKey: 'nav.subscription',
+    icon: <CreditCard className="w-5 h-5" />,
+    path: '/subscription',
     roles: ['admin'],
   },
 ];

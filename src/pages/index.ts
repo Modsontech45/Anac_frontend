@@ -10,3 +10,4 @@ export { default as Devices } from './Devices';
 export { default as Attendance } from './Attendance';
 export { default as Payroll } from './Payroll';
 export { default as Settings } from './Settings';
+export { default as Subscription } from './Subscription';

@@ -14,6 +14,7 @@ import {
   Attendance,
   Payroll,
   Settings,
+  Subscription,
 } from '@/pages';
 import type { UserRole } from '@/types';
 
@@ -124,6 +125,10 @@ export const routes = [
           {
             path: '/settings',
             element: <Settings />,
+          },
+          {
+            path: '/subscription',
+            element: <Subscription />,
           },
         ],
       },

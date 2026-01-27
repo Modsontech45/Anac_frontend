@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Search,
@@ -13,6 +13,8 @@ import {
   UserPlus,
   AlertCircle,
   CheckCircle,
+  Wifi,
+  WifiOff,
 } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
@@ -20,6 +22,7 @@ import { Input } from '@/components/common/Input';
 import { Select } from '@/components/common/Select';
 import { useAuthStore } from '@/store/authStore';
 import { attendanceService, userService, departmentService } from '@/services';
+import websocketService from '@/services/websocket.service';
 import type { AttendanceRecord, User, Department } from '@/types';
 
 interface TimeEntry {
@@ -72,6 +75,72 @@ const Attendance = () => {
     type: 'success' | 'error';
     message: string;
   } | null>(null);
+
+  // WebSocket connection status
+  const [wsConnected, setWsConnected] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+
+  // Memoized fetch function for WebSocket updates
+  const fetchRecordsForWs = useCallback(async () => {
+    try {
+      const filters: Record<string, string | number | undefined> = {
+        limit: 1000,
+        startDate,
+        endDate,
+      };
+
+      if (selectedUserId) filters.userId = selectedUserId;
+      if (selectedDepartmentId) filters.departmentId = selectedDepartmentId;
+
+      let response;
+      if (currentUser?.role === 'worker') {
+        response = await attendanceService.getMyRecords(filters);
+      } else {
+        response = await attendanceService.getAll(filters);
+      }
+      setRecords(response.data);
+      setLastUpdate(new Date());
+    } catch (error) {
+      console.error('Failed to fetch records:', error);
+    }
+  }, [startDate, endDate, selectedUserId, selectedDepartmentId, currentUser?.role]);
+
+  // WebSocket connection and real-time updates
+  useEffect(() => {
+    // Connect to WebSocket
+    websocketService.connect()
+      .then(() => {
+        setWsConnected(true);
+        // Authenticate as dashboard client
+        websocketService.authenticate('attendance-page');
+      })
+      .catch((error) => {
+        console.error('WebSocket connection failed:', error);
+        setWsConnected(false);
+      });
+
+    // Listen for connection status
+    const unsubscribeConnected = websocketService.on('connected', () => {
+      setWsConnected(true);
+    });
+
+    const unsubscribeDisconnected = websocketService.on('disconnected', () => {
+      setWsConnected(false);
+    });
+
+    // Listen for real-time attendance updates
+    const unsubscribeAttendance = websocketService.on('attendance_update', (data) => {
+      console.log('[Attendance] Real-time update received:', data);
+      // Refresh the attendance records
+      fetchRecordsForWs();
+    });
+
+    return () => {
+      unsubscribeConnected();
+      unsubscribeDisconnected();
+      unsubscribeAttendance();
+    };
+  }, [fetchRecordsForWs]);
 
   useEffect(() => {
     fetchInitialData();
@@ -356,9 +425,34 @@ const Attendance = () => {
           <h1 className="text-2xl font-semibold text-windows-text">
             {currentUser?.role === 'worker' ? t('dashboard.myAttendance') : t('attendance.title')}
           </h1>
-          <p className="text-windows-textSecondary mt-1">
-            {filteredAttendance.length} enregistrements
-          </p>
+          <div className="flex items-center gap-3 mt-1">
+            <p className="text-windows-textSecondary">
+              {filteredAttendance.length} enregistrements
+            </p>
+            {/* Real-time connection indicator */}
+            <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${
+              wsConnected
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+            }`}>
+              {wsConnected ? (
+                <>
+                  <Wifi className="w-3 h-3" />
+                  <span>En direct</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff className="w-3 h-3" />
+                  <span>Hors ligne</span>
+                </>
+              )}
+            </div>
+            {lastUpdate && (
+              <span className="text-xs text-windows-textSecondary">
+                Mis à jour: {lastUpdate.toLocaleTimeString('fr-FR')}
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button

@@ -103,7 +103,8 @@
     "attendance": "Pointages",
     "payroll": "Paie",
     "reports": "Rapports",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "subscription": "Abonnement"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -299,5 +300,58 @@
     "logoUploadError": "Échec du téléchargement du logo. Veuillez réessayer.",
     "logoDeleteError": "Échec de la suppression du logo. Veuillez réessayer.",
     "logoSaved": "Logo enregistré avec succès"
+  },
+  "subscription": {
+    "title": "Choisissez Votre Forfait",
+    "subtitle": "Sélectionnez le forfait idéal pour votre organisation. Tous les forfaits incluent un essai gratuit de 14 jours.",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "save20": "Économisez 20%",
+    "perMonth": "mois",
+    "billedMonthly": "Facturé mensuellement",
+    "billedYearly": "Facturé annuellement ({{amount}}$/an)",
+    "savePerYear": "Économisez {{amount}}$/an",
+    "mostPopular": "Le Plus Populaire",
+    "subscribe": "S'abonner",
+    "contactUs": "Nous Contacter",
+    "contactSales": "Contacter les Ventes",
+    "comingSoon": "Intégration de paiement bientôt disponible ! Contactez-nous pour configurer votre abonnement.",
+    "plans": {
+      "standard": "Standard",
+      "pro": "Pro",
+      "enterprise": "Entreprise",
+      "custom": "Sur Mesure"
+    },
+    "userLimits": {
+      "standard": "Jusqu'à 20 utilisateurs",
+      "pro": "21-100 utilisateurs",
+      "enterprise": "101-250 utilisateurs",
+      "custom": "250+ utilisateurs"
+    },
+    "features": {
+      "basicAttendance": "Suivi de présence basique",
+      "rfidSupport": "Support des appareils RFID",
+      "basicReports": "Rapports de base",
+      "emailSupport": "Support par e-mail",
+      "upTo20Users": "Jusqu'à 20 employés",
+      "allStandard": "Toutes les fonctionnalités Standard",
+      "advancedReports": "Analyses et rapports avancés",
+      "payrollIntegration": "Gestion de la paie",
+      "prioritySupport": "Support prioritaire",
+      "upTo100Users": "Jusqu'à 100 employés",
+      "allPro": "Toutes les fonctionnalités Pro",
+      "customIntegrations": "Intégrations personnalisées",
+      "dedicatedManager": "Gestionnaire de compte dédié",
+      "slaGuarantee": "Garantie SLA 99,9%",
+      "upTo250Users": "Jusqu'à 250 employés",
+      "allEnterprise": "Toutes les fonctionnalités Entreprise",
+      "unlimitedUsers": "Employés illimités",
+      "customDevelopment": "Développement sur mesure",
+      "onPremise": "Option de déploiement sur site",
+      "dedicatedSupport": "Support dédié 24/7"
+    },
+    "questionsTitle": "Des Questions ?",
+    "questionsSubtitle": "Notre équipe est là pour vous aider à choisir le bon forfait pour votre organisation.",
+    "securePayments": "Paiements sécurisés par Stripe"
   }
 }
