@@ -43,6 +43,7 @@ interface DailyAttendance {
   lastExit: string | null;
   totalMinutes: number;
   status: 'present' | 'incomplete' | 'absent';
+  deviceIds: string[]; // All devices used
 }
 
 const Attendance = () => {
@@ -232,9 +233,10 @@ const Attendance = () => {
   // Process records to get daily attendance with multiple entry/exit pairs
   const dailyAttendance = useMemo(() => {
     const dailyMap = new Map<string, {
-      records: { type: 'check_in' | 'check_out'; time: Date; timeStr: string }[];
+      records: { type: 'check_in' | 'check_out'; time: Date; timeStr: string; deviceId: string }[];
       user: User | undefined;
       dept: Department | undefined;
+      deviceIds: Set<string>;
     }>();
 
     // Group records by user-date
@@ -247,7 +249,7 @@ const Attendance = () => {
         : undefined;
 
       if (!dailyMap.has(key)) {
-        dailyMap.set(key, { records: [], user, dept });
+        dailyMap.set(key, { records: [], user, dept, deviceIds: new Set() });
       }
 
       const time = new Date(record.timestamp);
@@ -256,10 +258,15 @@ const Attendance = () => {
         minute: '2-digit',
       });
 
+      // Track device ID
+      const deviceId = record.deviceId || 'Manual';
+      dailyMap.get(key)!.deviceIds.add(deviceId);
+
       dailyMap.get(key)!.records.push({
         type: record.type,
         time,
         timeStr,
+        deviceId,
       });
     });
 
@@ -340,6 +347,7 @@ const Attendance = () => {
         lastExit,
         totalMinutes,
         status: entries.length === 0 ? 'absent' : hasIncomplete ? 'incomplete' : 'present',
+        deviceIds: Array.from(data.deviceIds),
       });
     });
 
@@ -669,6 +677,9 @@ const Attendance = () => {
                     </th>
                   )}
                   <th className="px-4 py-3 text-left text-sm font-semibold text-windows-text">
+                    {t('attendance.device')}
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-windows-text">
                     Premi&egrave;re entr&eacute;e
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-windows-text">
@@ -718,6 +729,26 @@ const Attendance = () => {
                           </div>
                         </td>
                       )}
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col gap-0.5">
+                          {entry.deviceIds.length === 1 ? (
+                            <span className="px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-800">
+                              {entry.deviceIds[0]}
+                            </span>
+                          ) : entry.deviceIds.length > 1 ? (
+                            <>
+                              <span className="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800">
+                                {entry.deviceIds.length} appareils
+                              </span>
+                              <span className="text-xs text-windows-textSecondary">
+                                {entry.deviceIds.join(', ')}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-windows-textSecondary">-</span>
+                          )}
+                        </div>
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           {entry.firstEntry ? (
@@ -776,7 +807,7 @@ const Attendance = () => {
                     {/* Expanded details row */}
                     {expandedRows.has(entry.id) && entry.entries.length > 1 && (
                       <tr key={`${entry.id}-details`} className="bg-gray-50">
-                        <td colSpan={currentUser?.role !== 'worker' ? 8 : 7} className="px-4 py-3">
+                        <td colSpan={currentUser?.role !== 'worker' ? 9 : 8} className="px-4 py-3">
                           <div className="ml-10">
                             <p className="text-sm font-medium text-windows-text mb-2">
                               D&eacute;tail des passages:
