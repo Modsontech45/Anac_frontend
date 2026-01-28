@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Menu, Bell, User, LogOut, Globe } from 'lucide-react';
+import { Menu, Bell, User, LogOut, Globe, Clock, Thermometer } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
@@ -12,6 +12,9 @@ const Navbar = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [organization, setOrganization] = useState<Organization | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [temperature, setTemperature] = useState<number | null>(null);
+  const [weatherLocation, setWeatherLocation] = useState<string>('');
   const userMenuRef = useRef<HTMLDivElement>(null);
   const langMenuRef = useRef<HTMLDivElement>(null);
 
@@ -41,6 +44,95 @@ const Navbar = () => {
     };
     fetchOrganization();
   }, []);
+
+  // Real-time clock
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Fetch weather/temperature
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        // Get user's location
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              const { latitude, longitude } = position.coords;
+              // Use Open-Meteo API (free, no API key required)
+              const response = await fetch(
+                `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+              );
+              const data = await response.json();
+              if (data.current_weather) {
+                setTemperature(Math.round(data.current_weather.temperature));
+              }
+              // Try to get location name
+              try {
+                const geoResponse = await fetch(
+                  `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+                );
+                const geoData = await geoResponse.json();
+                setWeatherLocation(geoData.address?.city || geoData.address?.town || '');
+              } catch {
+                // Ignore geocoding errors
+              }
+            },
+            () => {
+              // If geolocation denied, use default location (Yaounde, Cameroon)
+              fetchDefaultWeather();
+            }
+          );
+        } else {
+          fetchDefaultWeather();
+        }
+      } catch (error) {
+        console.error('Failed to fetch weather:', error);
+      }
+    };
+
+    const fetchDefaultWeather = async () => {
+      try {
+        // Default to Yaounde, Cameroon
+        const response = await fetch(
+          'https://api.open-meteo.com/v1/forecast?latitude=3.8667&longitude=11.5167&current_weather=true'
+        );
+        const data = await response.json();
+        if (data.current_weather) {
+          setTemperature(Math.round(data.current_weather.temperature));
+          setWeatherLocation('Yaounde');
+        }
+      } catch {
+        // Ignore errors
+      }
+    };
+
+    fetchWeather();
+    // Refresh weather every 30 minutes
+    const weatherTimer = setInterval(fetchWeather, 30 * 60 * 1000);
+    return () => clearInterval(weatherTimer);
+  }, []);
+
+  // Format time
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString(i18n.language === 'fr' ? 'fr-FR' : 'en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  };
+
+  // Format date
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString(i18n.language === 'fr' ? 'fr-FR' : 'en-US', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+    });
+  };
 
   // Get logo URL (Cloudinary returns full URL)
   const getLogoUrl = () => {
@@ -85,6 +177,26 @@ const Navbar = () => {
 
       {/* Right Section */}
       <div className="flex items-center gap-2">
+        {/* Clock & Date */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-windows border border-windows-border">
+          <Clock className="w-4 h-4 text-windows-accent" />
+          <div className="text-sm">
+            <span className="font-medium text-windows-text">{formatTime(currentTime)}</span>
+            <span className="text-windows-textSecondary ml-2">{formatDate(currentTime)}</span>
+          </div>
+        </div>
+
+        {/* Temperature */}
+        {temperature !== null && (
+          <div className="hidden sm:flex items-center gap-1 px-3 py-1 bg-gray-50 rounded-windows border border-windows-border">
+            <Thermometer className="w-4 h-4 text-orange-500" />
+            <span className="text-sm font-medium text-windows-text">{temperature}°C</span>
+            {weatherLocation && (
+              <span className="text-xs text-windows-textSecondary">{weatherLocation}</span>
+            )}
+          </div>
+        )}
+
         {/* Language Switcher */}
         <div className="relative" ref={langMenuRef}>
           <button
