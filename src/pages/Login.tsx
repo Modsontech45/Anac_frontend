@@ -38,7 +38,6 @@ const Login = () => {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-   
     setError(null);
     setLoading(true);
 
@@ -46,8 +45,16 @@ const Login = () => {
       const response = await authService.login(data);
       login(response.user, response.token, response.refreshToken);
       navigate('/');
-    } catch {
-      setError(t('auth.loginError'));
+    } catch (err: unknown) {
+      // Extract error message from backend response
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      const backendMessage = axiosError.response?.data?.message;
+
+      if (backendMessage) {
+        setError(backendMessage);
+      } else {
+        setError(t('auth.loginError'));
+      }
     } finally {
       setLoading(false);
     }

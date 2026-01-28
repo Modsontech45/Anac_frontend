@@ -25,14 +25,21 @@ api.interceptors.request.use(
   }
 );
 
+// List of endpoints that should NOT trigger token refresh
+const authEndpoints = ['/auth/login', '/auth/signup', '/auth/refresh', '/auth/forgot-password', '/auth/reset-password'];
+
 // Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config;
+    const requestUrl = originalRequest?.url || '';
 
-    // Handle 401 Unauthorized
-    if (error.response?.status === 401) {
+    // Don't try to refresh token for auth endpoints
+    const isAuthEndpoint = authEndpoints.some(endpoint => requestUrl.includes(endpoint));
+
+    // Handle 401 Unauthorized (but not for auth endpoints)
+    if (error.response?.status === 401 && !isAuthEndpoint) {
       const authStore = useAuthStore.getState();
       const refreshToken = authStore.refreshToken;
 
