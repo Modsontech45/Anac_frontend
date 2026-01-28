@@ -36,9 +36,13 @@ class WebSocketService {
     } else if (import.meta.env.VITE_API_URL) {
       // Convert API URL to WebSocket URL
       // e.g., https://anac-backend.onrender.com/api -> wss://anac-backend.onrender.com/ws
-      const apiUrl = import.meta.env.VITE_API_URL as string;
+      let apiUrl = (import.meta.env.VITE_API_URL as string).trim();
       const wsProtocol = apiUrl.startsWith('https') ? 'wss:' : 'ws:';
-      const urlWithoutProtocol = apiUrl.replace(/^https?:\/\//, '').replace(/\/api$/, '');
+      // Remove protocol, /api, and any trailing slashes
+      let urlWithoutProtocol = apiUrl
+        .replace(/^https?:\/\//, '')
+        .replace(/\/api\/?$/, '')
+        .replace(/\/$/, '');
       this.url = config.url || `${wsProtocol}//${urlWithoutProtocol}/ws`;
     } else {
       // Local development fallback
