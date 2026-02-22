@@ -31,6 +31,7 @@ const Devices = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -84,6 +85,7 @@ const Devices = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedDevice(null);
+    setSubmitError(null);
     reset();
   };
 
@@ -98,6 +100,7 @@ const Devices = () => {
   };
 
   const onSubmit = async (data: DeviceFormData) => {
+    setSubmitError(null);
     try {
       if (selectedDevice) {
         const updated = await deviceService.update(selectedDevice.id, {
@@ -111,7 +114,8 @@ const Devices = () => {
       }
       handleCloseModal();
     } catch (error) {
-      console.error('Failed to save device:', error);
+      const err = error as { response?: { data?: { message?: string } } };
+      setSubmitError(err?.response?.data?.message || 'Une erreur est survenue.');
     }
   };
 
@@ -301,6 +305,11 @@ const Devices = () => {
         }
       >
         <form className="space-y-4">
+          {submitError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-windows p-2">
+              {submitError}
+            </p>
+          )}
           <Input
             label={t('devices.name')}
             error={errors.name?.message}
