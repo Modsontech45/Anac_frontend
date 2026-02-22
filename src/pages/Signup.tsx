@@ -4,13 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { UserPlus, Eye, EyeOff, ArrowLeft, Check, Mail } from 'lucide-react';
+import { UserPlus, Eye, EyeOff, ArrowLeft, Check, Mail, GraduationCap, Dumbbell, Building2 } from 'lucide-react';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { authService } from '@/services';
+import type { OrganizationType } from '@/types';
 
 const signupSchema = z
   .object({
+    organizationType: z.enum(['school', 'gym', 'enterprise']),
     organizationName: z.string().min(1, 'validation.required').max(255),
     firstName: z.string().min(1, 'validation.required').max(100),
     lastName: z.string().min(1, 'validation.required').max(100),
@@ -30,6 +32,32 @@ const signupSchema = z
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
+const orgTypeOptions: {
+  value: OrganizationType;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    value: 'school',
+    label: 'École / Université',
+    description: 'Présence des élèves, gestion des tranches de frais',
+    icon: <GraduationCap className="w-7 h-7" />,
+  },
+  {
+    value: 'gym',
+    label: 'Salle de Sport / Club',
+    description: 'Abonnements quotidiens et mensuels',
+    icon: <Dumbbell className="w-7 h-7" />,
+  },
+  {
+    value: 'enterprise',
+    label: 'Entreprise / Bureau',
+    description: 'Pointage horaire et calcul de salaires',
+    icon: <Building2 className="w-7 h-7" />,
+  },
+];
+
 const Signup = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -38,12 +66,14 @@ const Signup = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedOrgType, setSelectedOrgType] = useState<OrganizationType | null>(null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -65,6 +95,11 @@ const Signup = () => {
     { test: /[0-9]/.test(password), label: t('auth.passwordReqNumber') },
   ];
 
+  const handleSelectOrgType = (type: OrganizationType) => {
+    setSelectedOrgType(type);
+    setValue('organizationType', type);
+  };
+
   const onSubmit = async (data: SignupFormData, e?: React.BaseSyntheticEvent) => {
     e?.preventDefault();
     setError(null);
@@ -77,6 +112,7 @@ const Signup = () => {
         firstName: data.firstName,
         lastName: data.lastName,
         organizationName: data.organizationName,
+        organizationType: data.organizationType,
       });
       setSuccess(true);
     } catch (err: unknown) {
@@ -159,6 +195,34 @@ const Signup = () => {
                 {error}
               </div>
             )}
+
+            {/* Organization Type Selector */}
+            <div>
+              <label className="block text-sm font-medium text-windows-text mb-2">
+                Type d'organisation <span className="text-windows-error">*</span>
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {orgTypeOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleSelectOrgType(option.value)}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-windows border-2 transition-all text-center
+                      ${selectedOrgType === option.value
+                        ? 'border-windows-accent bg-windows-accent/10 text-windows-accent'
+                        : 'border-windows-border text-windows-textSecondary hover:border-windows-accent/50'
+                      }`}
+                  >
+                    {option.icon}
+                    <span className="text-xs font-semibold leading-tight">{option.label}</span>
+                    <span className="text-xs opacity-70 leading-tight hidden sm:block">{option.description}</span>
+                  </button>
+                ))}
+              </div>
+              {errors.organizationType && (
+                <p className="mt-1 text-xs text-windows-error">Veuillez sélectionner un type</p>
+              )}
+            </div>
 
             <Input
               label={t('auth.organizationName')}

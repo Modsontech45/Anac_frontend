@@ -9,3 +9,6 @@ export { default as payrollService } from './payroll.service';
 export { default as websocketService } from './websocket.service';
 export { default as organizationService } from './organization.service';
 export { default as settingsService } from './settings.service';
+export { default as feeStructureService } from './feeStructure.service';
+export { default as studentPaymentService } from './studentPayment.service';
+export { default as membershipService } from './membership.service';

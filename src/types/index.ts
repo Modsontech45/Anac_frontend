@@ -1,6 +1,10 @@
 // User Roles
 export type UserRole = 'admin' | 'manager' | 'worker';
 
+// Organization types
+export type OrganizationType = 'school' | 'gym' | 'enterprise';
+export type MemberType = 'student' | 'teacher' | 'member' | 'employee' | null;
+
 // User interface
 export interface User {
   id: string;
@@ -13,6 +17,8 @@ export interface User {
   rfidTag: string | null;
   isActive: boolean;
   emailVerified: boolean;
+  memberType: MemberType;
+  avatarUrl?: string | null;
   totalHoursWorked?: number;
   createdAt: string;
   updatedAt: string;
@@ -71,6 +77,7 @@ export interface SignupCredentials {
   firstName: string;
   lastName: string;
   organizationName: string;
+  organizationType: OrganizationType;
 }
 
 export interface ForgotPasswordRequest {
@@ -103,6 +110,7 @@ export interface Organization {
   apiKey: string;
   logoUrl: string | null;
   isActive: boolean;
+  organizationType: OrganizationType;
   createdAt: string;
   updatedAt: string;
 }
@@ -140,6 +148,7 @@ export interface CreateUserForm {
   role: UserRole;
   departmentId?: string;
   rfidTag?: string;
+  memberType?: MemberType;
 }
 
 export interface UpdateUserForm {
@@ -150,6 +159,7 @@ export interface UpdateUserForm {
   departmentId?: string | null;
   rfidTag?: string | null;
   isActive?: boolean;
+  memberType?: MemberType;
 }
 
 export interface CreateDepartmentForm {
@@ -186,6 +196,16 @@ export interface DashboardStats {
   todayCheckIns: number;
   todayCheckOuts: number;
   presentToday: number;
+  school?: {
+    totalStudents: number;
+    totalTeachers: number;
+    unpaidCurrentTranche: number;
+  };
+  gym?: {
+    activeMembers: number;
+    expiringSoon: number;
+    expiredToday: number;
+  };
 }
 
 export interface DepartmentStats {
@@ -286,4 +306,99 @@ export interface NavItem {
   path: string;
   roles?: UserRole[];
   children?: NavItem[];
+}
+
+// =============================================
+// Fee Structure types (school only)
+// =============================================
+export interface FeeStructure {
+  id: string;
+  organizationId: string;
+  name: string;
+  percentage: number;
+  academicYear: string;
+  startDate: string;
+  endDate: string;
+  isForcedActive: boolean;
+  isCurrentlyActive: boolean;
+  totalAmount: number | null;
+  amountDue: number | null;
+  currency: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFeeStructureForm {
+  name: string;
+  percentage: number;
+  academicYear: string;
+  startDate: string;
+  endDate: string;
+  totalAmount?: number | null;
+  currency?: string;
+}
+
+// =============================================
+// Student Payment types (school only)
+// =============================================
+export interface StudentPayment {
+  id: string;
+  userId: string;
+  feeStructureId: string;
+  organizationId: string;
+  paidAt: string;
+  amountPaid: number | null;
+  markedBy: string | null;
+  notes: string | null;
+  createdAt: string;
+  studentName?: string;
+  studentEmail?: string;
+  feeStructureName?: string;
+  markedByName?: string;
+}
+
+export interface StudentWithPaymentStatus {
+  userId: string;
+  studentName: string;
+  rfidTag: string | null;
+  hasPaid: boolean;
+  isPartial: boolean;
+  totalPaid: number;
+  amountDue: number | null;
+  remainingAmount: number | null;
+  paymentCount: number;
+  lastPaidAt: string | null;
+  currency: string;
+}
+
+// =============================================
+// Gym Membership types (gym only)
+// =============================================
+export interface GymMembership {
+  id: string;
+  userId: string;
+  organizationId: string;
+  planType: 'daily' | 'monthly';
+  startDate: string;
+  endDate: string;
+  amountPaid: number | null;
+  currency: string;
+  isActive: boolean;
+  createdBy: string | null;
+  notes: string | null;
+  daysRemaining: number;
+  status: 'active' | 'expiring_soon' | 'expired';
+  createdAt: string;
+  updatedAt: string;
+  memberName?: string;
+  memberEmail?: string;
+}
+
+export interface CreateGymMembershipForm {
+  userId: string;
+  planType: 'daily' | 'monthly';
+  startDate: string;
+  amountPaid?: number;
+  currency?: string;
+  notes?: string;
 }

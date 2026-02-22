@@ -6,6 +6,7 @@ export interface Organization {
   apiKey: string;
   logoUrl: string | null;
   isActive: boolean;
+  organizationType: 'school' | 'gym' | 'enterprise';
   createdAt: string;
   updatedAt: string;
 }
@@ -41,6 +42,12 @@ const organizationService = {
   // Update organization name
   async updateName(name: string): Promise<Organization> {
     const response = await api.patch<{ success: boolean; data: Organization }>('/organization/name', { name });
+    return response.data.data;
+  },
+
+  // Update organization type
+  async updateOrganizationType(organizationType: 'school' | 'gym' | 'enterprise'): Promise<Organization> {
+    const response = await api.patch<{ success: boolean; data: Organization }>('/organization/type', { organizationType });
     return response.data.data;
   },
 

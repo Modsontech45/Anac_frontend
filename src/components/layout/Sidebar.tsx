@@ -10,20 +10,25 @@ import {
   Settings,
   CreditCard,
   X,
+  GraduationCap,
+  BookOpen,
+  Dumbbell,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
-import type { UserRole } from '@/types';
+import type { UserRole, OrganizationType } from '@/types';
 
 interface NavItem {
   id: string;
   labelKey: string;
+  customLabel?: string;
   icon: React.ReactNode;
   path: string;
   roles: UserRole[];
+  orgTypes?: OrganizationType[]; // if set, only show for these org types; if absent, show for all
 }
 
-const navItems: NavItem[] = [
+const getNavItems = (_orgType: OrganizationType | null): NavItem[] => [
   {
     id: 'dashboard',
     labelKey: 'nav.dashboard',
@@ -44,6 +49,7 @@ const navItems: NavItem[] = [
     icon: <Building2 className="w-5 h-5" />,
     path: '/departments',
     roles: ['admin', 'manager'],
+    orgTypes: ['enterprise', 'school'],
   },
   {
     id: 'devices',
@@ -59,12 +65,43 @@ const navItems: NavItem[] = [
     path: '/attendance',
     roles: ['admin', 'manager', 'worker'],
   },
+  // Enterprise: Payroll
   {
     id: 'payroll',
     labelKey: 'nav.payroll',
     icon: <Wallet className="w-5 h-5" />,
     path: '/payroll',
     roles: ['admin'],
+    orgTypes: ['enterprise'],
+  },
+  // School: Fee Structures + Student Payments
+  {
+    id: 'fee-structures',
+    labelKey: 'nav.feeStructures',
+    customLabel: 'Tranches de Frais',
+    icon: <GraduationCap className="w-5 h-5" />,
+    path: '/fee-structures',
+    roles: ['admin'],
+    orgTypes: ['school'],
+  },
+  {
+    id: 'student-payments',
+    labelKey: 'nav.studentPayments',
+    customLabel: 'Paiements Élèves',
+    icon: <BookOpen className="w-5 h-5" />,
+    path: '/student-payments',
+    roles: ['admin', 'manager'],
+    orgTypes: ['school'],
+  },
+  // Gym: Memberships
+  {
+    id: 'memberships',
+    labelKey: 'nav.memberships',
+    customLabel: 'Abonnements',
+    icon: <Dumbbell className="w-5 h-5" />,
+    path: '/memberships',
+    roles: ['admin', 'manager'],
+    orgTypes: ['gym'],
   },
   {
     id: 'settings',
@@ -84,12 +121,17 @@ const navItems: NavItem[] = [
 
 const Sidebar = () => {
   const { t } = useTranslation();
-  const { user } = useAuthStore();
+  const { user, organizationType } = useAuthStore();
   const { sidebarOpen, closeSidebar } = useUIStore();
 
-  const filteredNavItems = navItems.filter(
-    (item) => user && item.roles.includes(user.role)
-  );
+  const navItems = getNavItems(organizationType);
+
+  const filteredNavItems = navItems.filter((item) => {
+    if (!user) return false;
+    if (!item.roles.includes(user.role)) return false;
+    if (item.orgTypes && !item.orgTypes.includes(organizationType || 'enterprise')) return false;
+    return true;
+  });
 
   return (
     <>
@@ -138,7 +180,7 @@ const Sidebar = () => {
                   }
                 >
                   {item.icon}
-                  <span className="text-sm font-medium">{t(item.labelKey)}</span>
+                  <span className="text-sm font-medium">{item.customLabel || t(item.labelKey)}</span>
                 </NavLink>
               </li>
             ))}

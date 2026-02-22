@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, Pencil, Trash2, Search, CreditCard, Loader2, Wifi, WifiOff, Clock } from 'lucide-react';
-import { useRfidScanner } from '@/hooks';
+import { Plus, Pencil, Trash2, Search, CreditCard, Loader2, Wifi, WifiOff, Clock, Camera, X } from 'lucide-react';
+import { useRfidScanner, useOrgLabels } from '@/hooks';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
@@ -22,12 +22,14 @@ const userSchema = z.object({
   role: z.enum(['admin', 'manager', 'worker']),
   departmentId: z.string().optional(),
   rfidTag: z.string().optional(),
+  memberType: z.enum(['student', 'teacher', 'member', 'employee']).optional().nullable(),
 });
 
 type UserFormData = z.infer<typeof userSchema>;
 
 const Users = () => {
   const { t } = useTranslation();
+  const orgLabels = useOrgLabels();
   const [users, setUsers] = useState<User[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,6 +49,12 @@ const Users = () => {
   });
 
   const [selectedDeviceUid, setSelectedDeviceUid] = useState<string>('');
+
+  // Avatar upload state
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const {
     startScan,
@@ -90,6 +98,7 @@ const Users = () => {
         role: user.role,
         departmentId: user.departmentId || undefined,
         rfidTag: user.rfidTag || undefined,
+        memberType: user.memberType || undefined,
       });
     } else {
       setSelectedUser(null);
@@ -110,7 +119,40 @@ const Users = () => {
     setIsModalOpen(false);
     setSelectedUser(null);
     reset();
-    cancelScan(); // Cancel any ongoing RFID scan
+    cancelScan();
+    setAvatarFile(null);
+    setAvatarPreview(null);
+  };
+
+  const handleAvatarChange = (e: { target: HTMLInputElement }) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  };
+
+  const handleAvatarUpload = async (userId: string) => {
+    if (!avatarFile) return;
+    setIsUploadingAvatar(true);
+    try {
+      const updated = await userService.uploadAvatar(userId, avatarFile);
+      setUsers(users.map((u) => (u.id === updated.id ? updated : u)));
+      setAvatarFile(null);
+      setAvatarPreview(null);
+    } catch (error) {
+      console.error('Failed to upload avatar:', error);
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleAvatarDelete = async (userId: string) => {
+    try {
+      const updated = await userService.deleteAvatar(userId);
+      setUsers(users.map((u) => (u.id === updated.id ? updated : u)));
+    } catch (error) {
+      console.error('Failed to delete avatar:', error);
+    }
   };
 
   const handleOpenDeleteModal = (user: User) => {
@@ -158,6 +200,22 @@ const Users = () => {
 
   const columns: TableColumn<User>[] = [
     {
+      key: 'avatarUrl',
+      header: '',
+      render: (user) => (
+        <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
+          {user.avatarUrl ? (
+            <img src={user.avatarUrl} alt={user.firstName} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-sm font-semibold text-gray-400">
+              {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+            </span>
+          )}
+        </div>
+      ),
+      width: '48px',
+    },
+    {
       key: 'firstName',
       header: t('users.firstName'),
       render: (user) => `${user.firstName} ${user.lastName}`,
@@ -179,10 +237,23 @@ const Users = () => {
                 : 'bg-gray-100 text-gray-800'
           }`}
         >
-          {t(`users.roles.${user.role}`)}
+          {orgLabels.roleLabels[user.role as 'admin' | 'manager' | 'worker'] ?? user.role}
         </span>
       ),
     },
+    ...(orgLabels.showMemberType ? [{
+      key: 'memberType' as keyof User,
+      header: 'Type',
+      render: (user: User) => user.memberType ? (
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+          user.memberType === 'student' ? 'bg-indigo-100 text-indigo-800' :
+          user.memberType === 'teacher' ? 'bg-emerald-100 text-emerald-800' :
+          'bg-gray-100 text-gray-800'
+        }`}>
+          {user.memberType === 'student' ? 'Élève' : user.memberType === 'teacher' ? 'Enseignant' : user.memberType}
+        </span>
+      ) : <span className="text-windows-textSecondary">-</span>,
+    }] : []),
     {
       key: 'departmentId',
       header: t('users.department'),
@@ -257,10 +328,10 @@ const Users = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-windows-text">
-            {t('users.title')}
+            {orgLabels.membersLabel}
           </h1>
           <p className="text-windows-textSecondary mt-1">
-            {users.length} {t('nav.users').toLowerCase()}
+            {users.length} {orgLabels.membersLabel.toLowerCase()}
           </p>
         </div>
         <Button
@@ -318,6 +389,76 @@ const Users = () => {
         }
       >
         <form className="space-y-4">
+          {/* Avatar upload section (edit mode only) */}
+          {selectedUser && (
+            <div className="flex items-center gap-4 pb-3 border-b border-windows-border">
+              <div className="relative w-20 h-20 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0 ring-2 ring-windows-border">
+                {avatarPreview || selectedUser.avatarUrl ? (
+                  <img
+                    src={avatarPreview || selectedUser.avatarUrl!}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-2xl font-bold text-gray-400">
+                    {selectedUser.firstName.charAt(0)}{selectedUser.lastName.charAt(0)}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                />
+                {avatarFile ? (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    type="button"
+                    isLoading={isUploadingAvatar}
+                    onClick={() => handleAvatarUpload(selectedUser.id)}
+                  >
+                    Enregistrer la photo
+                  </Button>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                  >
+                    <Camera className="w-4 h-4 mr-1" />
+                    Changer la photo
+                  </Button>
+                )}
+                {(selectedUser.avatarUrl || avatarPreview) && !avatarFile && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    onClick={() => handleAvatarDelete(selectedUser.id)}
+                  >
+                    <X className="w-3 h-3 mr-1" />
+                    Supprimer
+                  </Button>
+                )}
+                {avatarFile && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    onClick={() => { setAvatarFile(null); setAvatarPreview(null); }}
+                  >
+                    Annuler
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <Input
               label={t('users.firstName')}
@@ -347,13 +488,24 @@ const Users = () => {
           <Select
             label={t('users.role')}
             options={[
-              { value: 'admin', label: t('users.roles.admin') },
-              { value: 'manager', label: t('users.roles.manager') },
-              { value: 'worker', label: t('users.roles.worker') },
+              { value: 'admin', label: orgLabels.roleLabels.admin },
+              { value: 'manager', label: orgLabels.roleLabels.manager },
+              { value: 'worker', label: orgLabels.roleLabels.worker },
             ]}
             error={errors.role?.message}
             {...register('role')}
           />
+          {orgLabels.showMemberType && (
+            <Select
+              label="Type de membre"
+              options={[
+                { value: '', label: '-- Sélectionner --' },
+                ...orgLabels.memberTypeOptions,
+              ]}
+              error={errors.memberType?.message}
+              {...register('memberType')}
+            />
+          )}
           <Select
             label={t('users.department')}
             options={[

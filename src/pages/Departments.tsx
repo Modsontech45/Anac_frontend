@@ -48,7 +48,7 @@ const Departments = () => {
     try {
       const [deptResponse, usersResponse] = await Promise.all([
         departmentService.getAll({ limit: 100 }),
-        userService.getAll({ role: 'manager', limit: 100 }),
+        userService.getAll({ limit: 100, isActive: true }),
       ]);
       setDepartments(deptResponse.data);
       setManagers(usersResponse.data);

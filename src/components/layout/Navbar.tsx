@@ -163,13 +163,13 @@ const Navbar = () => {
         >
           <Menu className="w-5 h-5 text-windows-text" />
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <img
             src={getLogoUrl()}
             alt={organization?.name || 'ANAC'}
-            className="w-8 h-8 object-contain"
+            className="w-12 h-12 object-contain"
           />
-          <span className="font-semibold text-windows-text hidden sm:block">
+          <span className="font-semibold text-windows-text hidden sm:block text-lg">
             {organization?.name || 'ANAC'}
           </span>
         </div>

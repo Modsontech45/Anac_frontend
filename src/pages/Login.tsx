@@ -73,7 +73,7 @@ const Login = () => {
           <img
             src="/Logo.png"
             alt="ANAC"
-            className="w-16 h-16 object-contain mx-auto mb-4"
+            className="w-28 h-28 object-contain mx-auto mb-4"
           />
           <h1 className="text-2xl font-semibold text-windows-text">
             {t('common.appName')}

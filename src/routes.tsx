@@ -15,6 +15,9 @@ import {
   Payroll,
   Settings,
   Subscription,
+  FeeStructures,
+  StudentPayments,
+  Memberships,
 } from '@/pages';
 import type { UserRole } from '@/types';
 
@@ -129,6 +132,30 @@ export const routes = [
           {
             path: '/subscription',
             element: <Subscription />,
+          },
+          // School-only routes (admin)
+          {
+            path: '/fee-structures',
+            element: <FeeStructures />,
+          },
+        ],
+      },
+    ],
+  },
+  // School + Gym routes (admin + manager)
+  {
+    element: <ProtectedRoute allowedRoles={['admin', 'manager']} />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [
+          {
+            path: '/student-payments',
+            element: <StudentPayments />,
+          },
+          {
+            path: '/memberships',
+            element: <Memberships />,
           },
         ],
       },

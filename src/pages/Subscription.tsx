@@ -21,8 +21,8 @@ const Subscription = () => {
     {
       id: 'standard',
       name: t('subscription.plans.standard'),
-      monthlyPrice: 30,
-      yearlyPrice: 24, // 20% off
+      monthlyPrice: 19,
+      yearlyPrice: 15, // 20% off
       userLimit: t('subscription.userLimits.standard'),
       features: [
         t('subscription.features.basicAttendance'),
@@ -35,8 +35,8 @@ const Subscription = () => {
     {
       id: 'pro',
       name: t('subscription.plans.pro'),
-      monthlyPrice: 45,
-      yearlyPrice: 36, // 20% off
+      monthlyPrice: 30,
+      yearlyPrice: 24, // 20% off
       userLimit: t('subscription.userLimits.pro'),
       features: [
         t('subscription.features.allStandard'),
@@ -50,8 +50,8 @@ const Subscription = () => {
     {
       id: 'enterprise',
       name: t('subscription.plans.enterprise'),
-      monthlyPrice: 150,
-      yearlyPrice: 120, // 20% off
+      monthlyPrice: 90,
+      yearlyPrice: 72, // 20% off
       userLimit: t('subscription.userLimits.enterprise'),
       features: [
         t('subscription.features.allPro'),

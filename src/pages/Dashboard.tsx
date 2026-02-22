@@ -11,6 +11,12 @@ import {
   Filter,
   RefreshCw,
   Calendar,
+  GraduationCap,
+  BookOpen,
+  AlertCircle,
+  Dumbbell,
+  Timer,
+  XCircle,
 } from 'lucide-react';
 import {
   LineChart,
@@ -28,6 +34,7 @@ import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { Select } from '@/components/common/Select';
 import { Input } from '@/components/common/Input';
+import { PageLoader } from '@/components/common/PageLoader';
 import { useAuthStore } from '@/store/authStore';
 import { attendanceService, departmentService } from '@/services';
 import type { DashboardStats, AttendanceChartData, DepartmentStats, Department } from '@/types';
@@ -55,7 +62,7 @@ type PeriodOption = '7' | '14' | '30' | 'custom';
 
 const Dashboard = () => {
   const { t } = useTranslation();
-  const { user } = useAuthStore();
+  const { user, organizationType } = useAuthStore();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [chartData, setChartData] = useState<AttendanceChartData[]>([]);
   const [departmentStats, setDepartmentStats] = useState<DepartmentStats[]>([]);
@@ -172,11 +179,7 @@ const Dashboard = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-windows-accent"></div>
-      </div>
-    );
+    return <PageLoader message="Loading dashboard..." />;
   }
 
   const renderAdminDashboard = () => (
@@ -189,24 +192,71 @@ const Dashboard = () => {
           icon={<Users className="w-6 h-6 text-white" />}
           color="bg-blue-500"
         />
-        <StatCard
-          title={t('dashboard.totalDepartments')}
-          value={stats?.totalDepartments || 0}
-          icon={<Building2 className="w-6 h-6 text-white" />}
-          color="bg-purple-500"
-        />
-        <StatCard
-          title={t('dashboard.totalDevices')}
-          value={stats?.totalDevices || 0}
-          icon={<Cpu className="w-6 h-6 text-white" />}
-          color="bg-orange-500"
-        />
-        <StatCard
-          title={t('dashboard.onlineDevices')}
-          value={stats?.onlineDevices || 0}
-          icon={<Wifi className="w-6 h-6 text-white" />}
-          color="bg-green-500"
-        />
+        {/* School-specific: replace Departments with Students/Teachers */}
+        {organizationType === 'school' ? (
+          <>
+            <StatCard
+              title="Total Élèves"
+              value={stats?.school?.totalStudents || 0}
+              icon={<GraduationCap className="w-6 h-6 text-white" />}
+              color="bg-indigo-500"
+            />
+            <StatCard
+              title="Total Enseignants"
+              value={stats?.school?.totalTeachers || 0}
+              icon={<BookOpen className="w-6 h-6 text-white" />}
+              color="bg-emerald-500"
+            />
+            <StatCard
+              title="Non payés (tranche active)"
+              value={stats?.school?.unpaidCurrentTranche || 0}
+              icon={<AlertCircle className="w-6 h-6 text-white" />}
+              color={stats?.school?.unpaidCurrentTranche ? 'bg-red-500' : 'bg-green-500'}
+            />
+          </>
+        ) : organizationType === 'gym' ? (
+          <>
+            <StatCard
+              title="Membres actifs"
+              value={stats?.gym?.activeMembers || 0}
+              icon={<Dumbbell className="w-6 h-6 text-white" />}
+              color="bg-green-500"
+            />
+            <StatCard
+              title="Expirent bientôt"
+              value={stats?.gym?.expiringSoon || 0}
+              icon={<Timer className="w-6 h-6 text-white" />}
+              color="bg-orange-500"
+            />
+            <StatCard
+              title="Expirés aujourd'hui"
+              value={stats?.gym?.expiredToday || 0}
+              icon={<XCircle className="w-6 h-6 text-white" />}
+              color="bg-red-500"
+            />
+          </>
+        ) : (
+          <>
+            <StatCard
+              title={t('dashboard.totalDepartments')}
+              value={stats?.totalDepartments || 0}
+              icon={<Building2 className="w-6 h-6 text-white" />}
+              color="bg-purple-500"
+            />
+            <StatCard
+              title={t('dashboard.totalDevices')}
+              value={stats?.totalDevices || 0}
+              icon={<Cpu className="w-6 h-6 text-white" />}
+              color="bg-orange-500"
+            />
+            <StatCard
+              title={t('dashboard.onlineDevices')}
+              value={stats?.onlineDevices || 0}
+              icon={<Wifi className="w-6 h-6 text-white" />}
+              color="bg-green-500"
+            />
+          </>
+        )}
       </div>
 
       {/* Second Row Stats */}

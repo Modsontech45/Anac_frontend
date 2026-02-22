@@ -8,6 +8,7 @@ import { Modal } from '@/components/common/Modal';
 import organizationService, { type Organization } from '@/services/organization.service';
 import settingsService, { type LateArrivalThreshold } from '@/services/settings.service';
 import { useAuthStore } from '@/store/authStore';
+import { Select } from '@/components/common/Select';
 
 const Settings = () => {
   const { t } = useTranslation();
@@ -41,6 +42,11 @@ const Settings = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isAdmin = user?.role === 'admin';
+
+  // Org type state
+  const [isSavingOrgType, setIsSavingOrgType] = useState(false);
+  const [orgTypeSaveStatus, setOrgTypeSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [selectedOrgType, setSelectedOrgType] = useState<'school' | 'gym' | 'enterprise'>('enterprise');
 
   useEffect(() => {
     fetchOrganization();
@@ -89,6 +95,7 @@ const Settings = () => {
       const data = await organizationService.getMyOrganization();
       setOrganization(data);
       setNewName(data.name);
+      setSelectedOrgType(data.organizationType || 'enterprise');
     } catch (error) {
       console.error('Failed to fetch organization:', error);
     } finally {
@@ -135,6 +142,21 @@ const Settings = () => {
       console.error('Failed to update organization name:', error);
     } finally {
       setIsSavingName(false);
+    }
+  };
+
+  const handleSaveOrgType = async () => {
+    if (!isAdmin) return;
+    setIsSavingOrgType(true);
+    setOrgTypeSaveStatus('idle');
+    try {
+      await organizationService.updateOrganizationType(selectedOrgType);
+      // Reload so initializeAuth fetches a fresh JWT with the new org type
+      window.location.reload();
+    } catch {
+      setOrgTypeSaveStatus('error');
+      setTimeout(() => setOrgTypeSaveStatus('idle'), 3000);
+      setIsSavingOrgType(false);
     }
   };
 
@@ -454,6 +476,42 @@ const Settings = () => {
             </div>
           )}
         </div>
+
+        {/* Organization Type */}
+        {isAdmin && (
+          <div className="mb-6 pb-6 border-b border-windows-border">
+            <label className="block text-sm font-medium text-windows-text mb-1">
+              Type d'organisation
+            </label>
+            <p className="text-sm text-windows-textSecondary mb-3">
+              Définit les fonctionnalités disponibles (école, salle de sport, entreprise).
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-56">
+                <Select
+                  options={[
+                    { value: 'school', label: 'École' },
+                    { value: 'gym', label: 'Salle de sport' },
+                    { value: 'enterprise', label: 'Entreprise' },
+                  ]}
+                  value={selectedOrgType}
+                  onChange={(e) => setSelectedOrgType(e.target.value as 'school' | 'gym' | 'enterprise')}
+                />
+              </div>
+              <Button
+                variant="primary"
+                onClick={handleSaveOrgType}
+                isLoading={isSavingOrgType}
+                disabled={selectedOrgType === organization?.organizationType}
+              >
+                {t('common.save')}
+              </Button>
+              {orgTypeSaveStatus === 'error' && (
+                <span className="text-sm text-red-500">Erreur lors de la sauvegarde</span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* API Key Section */}
         <div className="border-t border-windows-border pt-6">

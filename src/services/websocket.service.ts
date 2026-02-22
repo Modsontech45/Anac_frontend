@@ -203,7 +203,7 @@ class WebSocketService {
     this.send({
       type: 'client_auth',
       client_id: clientId,
-      client_type: 'frontend',
+      client_type: 'dashboard',
     });
   }
 

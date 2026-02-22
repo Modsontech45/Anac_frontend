@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Search,
@@ -81,6 +81,17 @@ const Attendance = () => {
   const [wsConnected, setWsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
+  // Scan popup state
+  const [scanPopup, setScanPopup] = useState<{
+    userName: string;
+    avatarUrl: string | null;
+    attendanceType: 'check_in' | 'check_out';
+    sign: number; // 0=error/red, 1=ok/green, 2=warning/red, 3=late/orange
+    flag: string;
+    timestamp: string;
+  } | null>(null);
+  const scanPopupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Memoized fetch function for WebSocket updates
   const fetchRecordsForWs = useCallback(async () => {
     try {
@@ -130,8 +141,22 @@ const Attendance = () => {
     });
 
     // Listen for real-time attendance updates
-    const unsubscribeAttendance = websocketService.on('attendance_update', (data) => {
+    const unsubscribeAttendance = websocketService.on('attendance_update', (data: any) => {
       console.log('[Attendance] Real-time update received:', data);
+      // Show scan popup
+      const payload = data?.data ?? data;
+      if (payload?.userName) {
+        if (scanPopupTimerRef.current) clearTimeout(scanPopupTimerRef.current);
+        setScanPopup({
+          userName: payload.userName,
+          avatarUrl: payload.avatarUrl ?? null,
+          attendanceType: payload.attendanceType ?? 'check_in',
+          sign: payload.sign ?? 1,
+          flag: payload.flag ?? 'Welcome!',
+          timestamp: payload.timestamp ?? new Date().toISOString(),
+        });
+        scanPopupTimerRef.current = setTimeout(() => setScanPopup(null), 5000);
+      }
       // Refresh the attendance records
       fetchRecordsForWs();
     });
@@ -140,6 +165,7 @@ const Attendance = () => {
       unsubscribeConnected();
       unsubscribeDisconnected();
       unsubscribeAttendance();
+      if (scanPopupTimerRef.current) clearTimeout(scanPopupTimerRef.current);
     };
   }, [fetchRecordsForWs]);
 
@@ -425,8 +451,86 @@ const Attendance = () => {
   const completeDays = dailyAttendance.filter((e) => e.status === 'present').length;
   const totalMinutesWorked = dailyAttendance.reduce((sum, e) => sum + e.totalMinutes, 0);
 
+  // Scan popup color logic
+  const popupBorderColor = scanPopup
+    ? scanPopup.sign === 1 || scanPopup.sign === 3
+      ? 'ring-green-500 shadow-green-200'
+      : 'ring-red-500 shadow-red-200'
+    : '';
+  const popupAccent = scanPopup
+    ? scanPopup.sign === 1
+      ? { label: 'bg-green-100 text-green-800', icon: '✓' }
+      : scanPopup.sign === 3
+      ? { label: 'bg-orange-100 text-orange-800', icon: '⏰' }
+      : { label: 'bg-red-100 text-red-800', icon: '✗' }
+    : null;
+
   return (
     <div className="animate-fade-in">
+      {/* Scan Popup Modal */}
+      {scanPopup && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setScanPopup(null)}
+        >
+          <div
+            className={`relative bg-white rounded-2xl p-8 w-80 max-w-sm text-center shadow-2xl ring-4 ${popupBorderColor} transition-all animate-fade-in`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setScanPopup(null)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl font-bold leading-none"
+            >
+              ×
+            </button>
+
+            {/* Avatar */}
+            <div className={`mx-auto mb-4 w-36 h-36 rounded-full ring-8 ${
+              scanPopup.sign === 1 || scanPopup.sign === 3 ? 'ring-green-400' : 'ring-red-400'
+            } overflow-hidden flex items-center justify-center bg-gray-100`}>
+              {scanPopup.avatarUrl ? (
+                <img
+                  src={scanPopup.avatarUrl}
+                  alt={scanPopup.userName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-5xl font-bold text-gray-400">
+                  {scanPopup.userName.charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+
+            {/* Name */}
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">{scanPopup.userName}</h2>
+
+            {/* Action */}
+            <p className="text-sm text-gray-500 mb-3">
+              {scanPopup.attendanceType === 'check_in' ? 'Entrée' : 'Sortie'} —{' '}
+              {new Date(scanPopup.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+            </p>
+
+            {/* Flag badge */}
+            {popupAccent && (
+              <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${popupAccent.label}`}>
+                {popupAccent.icon} {scanPopup.flag}
+              </span>
+            )}
+
+            {/* Auto-close bar */}
+            <div className="mt-4 h-1 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full ${
+                  scanPopup.sign === 1 || scanPopup.sign === 3 ? 'bg-green-400' : 'bg-red-400'
+                } animate-[shrink_5s_linear_forwards]`}
+                style={{ width: '100%', animationFillMode: 'forwards' }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>

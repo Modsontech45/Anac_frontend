@@ -11,3 +11,6 @@ export { default as Attendance } from './Attendance';
 export { default as Payroll } from './Payroll';
 export { default as Settings } from './Settings';
 export { default as Subscription } from './Subscription';
+export { default as FeeStructures } from './FeeStructures';
+export { default as StudentPayments } from './StudentPayments';
+export { default as Memberships } from './Memberships';
