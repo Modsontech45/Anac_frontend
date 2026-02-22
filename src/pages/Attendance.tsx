@@ -452,9 +452,12 @@ const Attendance = () => {
   const totalMinutesWorked = dailyAttendance.reduce((sum, e) => sum + e.totalMinutes, 0);
 
   // Scan popup color logic
+  // sign 1 = ok (green), sign 2 = active+unpaid (yellow), sign 3 = late (orange), sign 4 = past+unpaid (red), sign 0 = blocked (red)
   const popupBorderColor = scanPopup
     ? scanPopup.sign === 1 || scanPopup.sign === 3
       ? 'ring-green-500 shadow-green-200'
+      : scanPopup.sign === 2
+      ? 'ring-yellow-400 shadow-yellow-200'
       : 'ring-red-500 shadow-red-200'
     : '';
   const popupAccent = scanPopup
@@ -462,6 +465,8 @@ const Attendance = () => {
       ? { label: 'bg-green-100 text-green-800', icon: '✓' }
       : scanPopup.sign === 3
       ? { label: 'bg-orange-100 text-orange-800', icon: '⏰' }
+      : scanPopup.sign === 2
+      ? { label: 'bg-yellow-100 text-yellow-800', icon: '⚠' }
       : { label: 'bg-red-100 text-red-800', icon: '✗' }
     : null;
 
@@ -487,7 +492,9 @@ const Attendance = () => {
 
             {/* Avatar */}
             <div className={`mx-auto mb-4 w-36 h-36 rounded-full ring-8 ${
-              scanPopup.sign === 1 || scanPopup.sign === 3 ? 'ring-green-400' : 'ring-red-400'
+              scanPopup.sign === 1 || scanPopup.sign === 3 ? 'ring-green-400'
+              : scanPopup.sign === 2 ? 'ring-yellow-400'
+              : 'ring-red-400'
             } overflow-hidden flex items-center justify-center bg-gray-100`}>
               {scanPopup.avatarUrl ? (
                 <img
@@ -522,7 +529,9 @@ const Attendance = () => {
             <div className="mt-4 h-1 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full ${
-                  scanPopup.sign === 1 || scanPopup.sign === 3 ? 'bg-green-400' : 'bg-red-400'
+                  scanPopup.sign === 1 || scanPopup.sign === 3 ? 'bg-green-400'
+                  : scanPopup.sign === 2 ? 'bg-yellow-400'
+                  : 'bg-red-400'
                 } animate-[shrink_5s_linear_forwards]`}
                 style={{ width: '100%', animationFillMode: 'forwards' }}
               />
